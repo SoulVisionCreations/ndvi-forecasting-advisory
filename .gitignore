@@ -1,0 +1,22 @@
+# byte-compiled / caches
+__pycache__/
+*.py[cod]
+.venv/
+.ipynb_checkpoints/
+
+# model artifacts (downloaded into weights/ — see weights/README.md)
+weights/*
+!weights/.gitkeep
+!weights/README.md
+
+# datasets (downloaded/regenerated into data/ — see data/README.md)
+data/*
+!data/.gitkeep
+!data/README.md
+
+# runtime outputs
+inference_cache*/
+runs/
+plots_tft*/
+*.tif
+*.log

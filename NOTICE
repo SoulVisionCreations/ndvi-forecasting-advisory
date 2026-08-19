@@ -1,0 +1,55 @@
+NDVI Forecasting (Prithvi + TFT)
+Copyright 2026 Soul Vision Creations
+
+This product is licensed under the Apache License, Version 2.0 (see the LICENSE file).
+
+================================================================================
+Foundation model
+================================================================================
+
+Prithvi-EO-2.0-300M — a geospatial foundation model developed by NASA and IBM,
+released under the Apache License, Version 2.0.
+
+  Paper: "Prithvi-EO-2.0: A Versatile Multi-Temporal Foundation Model for Earth
+         Observation Applications", arXiv:2412.02732.
+
+  This project uses the frozen Prithvi-EO-2.0-300M backbone and adds:
+    - LoRA adapters (rank 16, alpha 32) on the q/k/v projections of the encoder,
+    - a pre-projection LayerNorm + a linear 1024->32 projector, and
+    - a Temporal Fusion Transformer (TFT) forecasting head.
+  The base backbone weights are NOT modified (they are frozen). They are included,
+  baked into the distributed model bundle, and are byte-identical to the base model;
+  they are not redistributed as a separate artifact.
+
+  The Prithvi architecture code (prithvi_mae.py) is redistributed under Apache-2.0.
+
+================================================================================
+Datasets and services (used at training and/or inference time)
+================================================================================
+
+Each of the following carries its own terms of use. Users are responsible for
+complying with the terms of any dataset or service they access.
+
+  - MODIS MOD13Q1 (vegetation indices / NDVI) ....... NASA
+  - Harmonized Landsat Sentinel-2 (HLS) imagery ..... NASA
+  - SMAP (soil moisture) ............................ NASA
+  - ERA5-Land (weather / land reanalysis) ........... ECMWF / Copernicus Climate
+                                                      Change Service (C3S)
+  - Land cover (ESA WorldCover v200) ............... ESA / Copernicus (CC BY 4.0)
+  - Administrative boundaries ....................... CoreStack (core-stack.org)
+  - Forecast weather ............................... Open-Meteo
+  - Satellite / geospatial data access ............. Google Earth Engine
+
+================================================================================
+Optional local LLM (advisory phraser — not shipped, not redistributed)
+================================================================================
+
+The advisory layer can OPTIONALLY use a small local language model to reword the
+rule engine's chosen message and (optionally) translate it. It is OFF by default
+(ADVISORY_SLM=0 uses a deterministic template), and NO model weights are shipped
+or redistributed with this project — the operator pulls them locally at their own
+discretion. When enabled:
+
+  - Gemma (e.g. gemma3) — Google. Use is governed by the Gemma Terms of Use
+    (https://ai.google.dev/gemma/terms) and the Gemma Prohibited Use Policy.
+  - Ollama (local model runtime) — MIT License.
