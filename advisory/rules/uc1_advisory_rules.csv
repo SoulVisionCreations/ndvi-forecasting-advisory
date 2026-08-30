@@ -1,0 +1,41 @@
+# UC1 (VEGETATION OUTLOOK) ADVISORY RULE CONFIG  — deterministic; the rule engine picks
+# exactly ONE row; the phraser (template or SLM) only rewords it.
+#
+# FRAMING: a SOFT INDICATOR / opinion (satellite vegetation outlook, ~3 months,
+#   relative to the area's OWN normal). NOT a drought detector, NOT a source of truth.
+#   No "drought" wording. Every advisory is "may / worth watching / one opinion, confirm
+#   with your experience + Krishi Vigyan Kendra (KVK)".
+#
+# INPUTS (from the model + aggregation):
+#   severity(median z)      : <=-2 well_below | -2..-1 below | -1..1 normal | >=1 above
+#   spatial confidence      : POPULATION SD of per-point z: <0.5 high | 0.5-1.0 medium | >=1.0 low
+#   data quality (SEPARATE) : clear-view fraction: >=0.75 good | 0.5-0.75 fair | <0.5 poor
+#   overall confidence      = WORSE of (spatial, data quality); if data POOR -> gate to watch/low
+#   attribution             : plot_z<=-1 AND %below>=50 AND median_z<=-1 -> regional(area-wide)
+#                             | plot_z<=-1 -> local(your-plot) | else none
+# NOTE: median_z<=-1 forces %below>=50, so 'below/well_below' + 'local' is unreachable, and
+#   'below/well_below' + 'none' means the AREA is below while the farmer's OWN plot reads fine.
+# The concrete LEVERS / DRIVER / ESCALATION are added by advisory.season_lens (local
+#   wet/dry at the target date). This table is season-NEUTRAL so it stays small.
+# TRAJECTORY (recent trend) is shown to the farmer as CONTEXT only; it does NOT pick the row.
+# The consult body shown to the farmer comes from the season lens (lens.resource), so it is
+#   NOT duplicated here.
+#
+attribution,regime,severity,confidence,risk_level,action_tier,active_advisory,escalate_if,driver_check
+none,any,above,any,normal,proceed,"Vegetation looks ABOVE its usual for your area over the next ~3 months — a favourable greenness read. Keep an eye on your local conditions (water, weather); one satellite opinion.",,
+none,any,normal,any,normal,proceed,"Vegetation looks about NORMAL for your area over the next ~3 months — a greenness read only. Nothing to flag on the vegetation itself; keep an eye on your local conditions (water, weather). One opinion only.",,
+none,any,below,any,watch,monitor,"Your own plot reads about NORMAL, but the wider AREA is running a bit BELOW its usual over the next ~3 months. Nothing to act on for your plot now — keep an eye, since area-wide stress can spread. One opinion; confirm with your Krishi Vigyan Kendra (KVK).",re-check next update,area below / your-plot normal
+none,any,well_below,any,watch,monitor,"Your own plot reads about NORMAL, but the wider AREA is running NOTABLY BELOW its usual over the next ~3 months. Nothing to act on for your plot right now — worth keeping a close eye, as area-wide stress can reach you. One opinion; confirm with your Krishi Vigyan Kendra (KVK).",re-check next update,area notably below / your-plot normal
+local,any,any,any,check-your-field,local_fix,"Your area looks fine but YOUR plot reads a bit low — so this is likely local to your field, not the area. Worth a look: irrigation/pump uniformity, pest/disease, nutrients. One opinion; trust what you see.",,your-plot only (area normal)
+regional,rain-fed,below,high,below-usual,low_regret,"Vegetation may run a bit BELOW its usual across your area over the next ~3 months. A few low-regret stress-mitigation steps are worth considering. One opinion — weigh it with your experience + Krishi Vigyan Kendra (KVK).",the next update and your own read agree,
+regional,rain-fed,below,medium,watch,low_regret,"Vegetation may lean a little BELOW usual across your area over the next ~3 months (medium confidence). No rush — a low-regret hedge and keep watching. One opinion; confirm locally.",the next update and your own field,
+regional,rain-fed,below,low,watch,monitor,"A weak / mixed sign that vegetation could be slightly below usual across your area. Low confidence — keep watching and check with your Krishi Vigyan Kendra (KVK).",re-check next update,
+regional,rain-fed,well_below,high,below-usual,commit,"Vegetation looks NOTABLY BELOW its usual across your area over the next ~3 months. Worth acting on if it matches your own read — with low-regret stress-mitigation steps. One opinion — confirm with Krishi Vigyan Kendra (KVK).",,
+regional,rain-fed,well_below,medium,below-usual,low_regret+prepare,"Vegetation may run WELL BELOW its usual across your area over the next ~3 months (medium confidence). For now low-regret stress-mitigation; be ready to escalate if it firms up. One opinion; weigh with your experience + Krishi Vigyan Kendra (KVK).",the next update and your read agree it is firming,
+regional,rain-fed,well_below,low,watch,monitor+hedge,"A well-below sign but low confidence (mixed points). Watch + confirm with Krishi Vigyan Kendra (KVK); low-regret hedges only. One opinion.",re-check next update before doing anything big,
+regional,irrigated,below,high,below-usual,low_regret,"Vegetation may run below usual across your area though your field is irrigated -> worth checking your WATER SOURCE in case it draws down, plus low-regret stress-mitigation. If water is fine, watch for heat/pest. One opinion; confirm with Krishi Vigyan Kendra (KVK) + your water department.",source confirmed low,
+regional,irrigated,below,medium,watch,low_regret,"May lean below usual across your area (irrigated). Check your source level and keep low-regret steps in mind. If water is fine, watch for heat/pest. One opinion.",source low / update firms,
+regional,irrigated,below,low,watch,monitor,"Weak below-usual sign (irrigated), low confidence. Watch + check your source level + confirm with Krishi Vigyan Kendra (KVK). One opinion.",re-check next update,
+regional,irrigated,well_below,high,below-usual,commit,"Notably below usual across your area (irrigated) -> your WATER SOURCE is the thing to check; it may run low. Prioritise water for your best area and take low-regret stress-mitigation steps. If water is secure, treat as heat/pest. One opinion; confirm with Krishi Vigyan Kendra (KVK) + water department.",,
+regional,irrigated,well_below,medium,below-usual,low_regret+prepare,"May run well below usual across your area (irrigated, medium confidence). Check + secure your water source and take low-regret stress-mitigation now; be ready to escalate. One opinion; confirm locally.",source low / update firms,
+regional,irrigated,well_below,low,watch,monitor+hedge,"A well-below sign but low confidence (irrigated, mixed points). Watch + check your source + confirm with Krishi Vigyan Kendra (KVK); low-regret hedges only. One opinion.",re-check next update,
