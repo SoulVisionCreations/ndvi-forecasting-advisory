@@ -125,7 +125,7 @@ what's fetched live.
 
 ## License
 
-**Apache-2.0** (see [LICENSE](LICENSE)). Built on **Prithvi-EO-2.0-300M** (IBM / NASA, Apache-2.0;
+**CC-BY-4.0** (see [LICENSE](LICENSE)). Built on **Prithvi-EO-2.0-300M** (IBM / NASA, Apache-2.0;
 arXiv:2412.02732). The frozen backbone **and** the trained LoRA adapters (r16/α32, qkv) + 1024→32
 projector + TFT head are all fused into the single model checkpoint (`tft_temporal_production_ft.pt`) —
 no separate base download. Full attribution — including the MODIS / ERA5-Land / SMAP / HLS / CoreStack /
